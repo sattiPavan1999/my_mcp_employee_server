@@ -10,7 +10,14 @@ DB_FILE = os.path.join(BASE_DIR, "employees.db")
 mcp = FastMCP("EmployeeMCP", json_response=True)
 
 
+TEST_DB_CONN = None  # used only for tests
+
+
 def get_conn():
+    """Return connection for production or testing (if TEST_DB_CONN set)."""
+    global TEST_DB_CONN
+    if TEST_DB_CONN:
+        return TEST_DB_CONN
     return sqlite3.connect(DB_FILE)
 
 
@@ -29,7 +36,9 @@ def add_employee(name: str, age: int, role: str) -> str:
     )
 
     conn.commit()
-    conn.close()
+    if TEST_DB_CONN is None:
+        conn.close()
+
     return f"Employee '{name}' added successfully."
 
 
@@ -49,7 +58,8 @@ def update_employee(id: int, name: str, age: int, role: str) -> str:
 
     conn.commit()
     rows_count = cursor.rowcount
-    conn.close()
+    if TEST_DB_CONN is None:
+        conn.close()
     if (rows_count == 0):
         return f"No Employee with the id: {id} found"  
     return f"Employee '{name}' and '{id}' updated successfully."
@@ -71,7 +81,8 @@ def delete_employee(id: int) -> str:
 
     conn.commit()
     rows_count = cursor.rowcount
-    conn.close()
+    if TEST_DB_CONN is None:
+        conn.close()
     if (rows_count == 0):
         return f"No Employee with the id: {id} found"
     return f"Employee with id: '{id}' deleted successfully."
@@ -89,7 +100,8 @@ def list_employees() -> list:
     cursor.execute("SELECT id, name, age, role FROM employees")
     rows = cursor.fetchall()
 
-    conn.close()
+    if TEST_DB_CONN is None:
+        conn.close()
 
     return [
         {"id": r[0], "name": r[1], "age": r[2], "role": r[3]}
@@ -153,7 +165,8 @@ def list_specific_employees(
 
     cursor.execute(query, params)
     rows = cursor.fetchall()
-    conn.close()
+    if TEST_DB_CONN is None:
+        conn.close()
 
     return [
         {"id": r[0], "name": r[1], "age": r[2], "role": r[3]}
