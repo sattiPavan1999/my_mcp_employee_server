@@ -1,4 +1,4 @@
-To run tests: pytest -v
+To run tests: pytest -v \n
 To install mcp server: mcp install server.py
 To run mcp server: mcp dev server.py
 To create venv: python3 -m venv venv
